@@ -26,38 +26,38 @@ def search_users(args):
     """
 
     # Implement search here!
-    if args:
-        ret = []
-        if len(args) > 0:
-            for key, value in args.items():
-                if key == "id":
-                    if int(value) <= len(USERS):
-                        insert(USERS[int(value)-1], ret)
-                        
-                elif key == "name":
-                    temp = [k for k in USERS if value.lower() in k["name"].lower()]
-                    insert(temp, ret)
-                        
-                elif key == "age":
-                    temp = [k for k in USERS if int(k["age"]) in range(int(value)-1, int(value)+2)]
-                    insert(temp, ret)
-
-                elif key == "occupation":
-                    temp = [k for k in USERS if value.lower() in k["occupation"].lower()]
-                    insert(temp, ret)
-
-        return ret
-    else:
+    if not args:
         return USERS
-    
-def is_exists(user, ret):
-     return bool([k["id"] for k in ret if k["id"] == user["id"]]) 
 
-def insert(temp, ret):
-    if type(temp)== list:
-        for x in temp:
-            if not is_exists(x, ret):
-                ret.append(x)
-    else:
-        if not is_exists(temp, ret):
-            ret.append(temp)
+    ret = []
+
+    for key, value in args.items():
+        if key == "id":
+            user_id = int(value) - 1
+            if 0 <= user_id < len(USERS):
+                ret.append(USERS[user_id])
+        elif key == "name":
+            value_lower = value.lower()
+            temp = [user for user in USERS if value_lower in user["name"].lower()]
+            ret.extend(temp)
+        elif key == "age":
+            age = int(value)
+            temp = [user for user in USERS if age - 1 <= int(user["age"]) <= age + 1]
+            ret.extend(temp)
+        elif key == "occupation":
+            value_lower = value.lower()
+            temp = [user for user in USERS if value_lower in user["occupation"].lower()]
+            ret.extend(temp)
+
+    return remove_duplicates(ret)
+
+def remove_duplicates(users_list):
+    unique_users = []
+    user_ids = set()
+    
+    for user in users_list:
+        if user["id"] not in user_ids:
+            unique_users.append(user)
+            user_ids.add(user["id"])
+    
+    return unique_users
